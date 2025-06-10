@@ -1,0 +1,21 @@
+A console application for storing the books.
+
+A book should have: 
+Title: string
+Descriptionm: string
+Amount: number
+
+The bookstore should have the following commands: 
+1. Add a book <name>
+2. Add a description <description>
+3. Add an amount <amount>
+
+List:
+ 1. List all books
+ foreach -> print the book {title}, {description}, and {amount}
+
+ Additional optional requirements:
+ 0. Delete all book functionallity
+ 1. Only allow unique names in the store.
+ 2. Place the code in github
+ 3. Delete functionality                                                                           
