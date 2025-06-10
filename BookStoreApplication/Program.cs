@@ -7,35 +7,32 @@ var BookStoreConsole = new BookStoreConsole();
 
 while (true)
 {
-    Console.WriteLine("Enter a command: Add / List / Remove");
-    var command = Console.ReadLine();
+    Console.WriteLine("Enter a command: Add / List / Remove / Update / exit");
+    var command = Console.ReadLine()?.Trim().ToLower();
+
     switch (command)
     {
-
-
-        case "Add":
+        case "add":
             BookStoreConsole.ExecuteAdd();
             break;
 
-        case "List":
+        case "list":
             BookStoreConsole.ExecuteList();
             break;
 
-        case "Remove":
+        case "remove":
             BookStoreConsole.ExecuteRemove();
             break;
 
-        case "exit":
+        case "update":
+            BookStoreConsole.ExecuteUpdate();
             break;
 
+        case "exit":
+            return; // Exit the program immediately
 
         default:
             Console.WriteLine("Invalid command");
-            Console.WriteLine("Enter a command: Add or List");
             break;
-
-
     }
 }
-
-

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BookStoreApplication;
 
 namespace BookStoreApplication
 {
@@ -38,11 +39,18 @@ namespace BookStoreApplication
         public void ExecuteList()
         {
             var books = _bookStore.GetAll();
+            if (books.Count == 0)
+            {
+                Console.WriteLine("No books available.");
+                return;
+            }
+            int i = 1;
             foreach (var book in books)
             {
-                Console.WriteLine($"Title: {book.Title}");
-                Console.WriteLine($"Description: {book.Description}");
-                Console.WriteLine($"Amount: {book.Amount}");
+                Console.WriteLine($"{i++}. Title: {book.Title}");
+                Console.WriteLine($"   Description: {book.Description}");
+                Console.WriteLine($"   Amount: {book.Amount}");
+                Console.WriteLine();
             }
         }
 
@@ -57,8 +65,64 @@ namespace BookStoreApplication
                 return;
             }
 
+            var bookExists = _bookStore.GetAll().Any(b => b.Title == title);
+            if (!bookExists)
+            {
+                Console.WriteLine("Book not found.");
+                return;
+            }
+
             _bookStore.Remove(title);
+            Console.WriteLine("Book removed successfully.");
+        }
+
+        public void ExecuteUpdate()
+        {
+            Console.WriteLine("Please enter the title of the book you want to update:");
+            var oldTitle = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(oldTitle))
+            {
+                Console.WriteLine("Invalid input. Title cannot be null or empty.");
+                return;
+            }
+
+            Console.WriteLine("Please enter new title:");
+            var newTitle = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(newTitle))
+            {
+                Console.WriteLine("Invalid input. New title cannot be null or empty.");
+                return;
+            }
+
+            Console.WriteLine("Please enter new description:");
+            var description = Console.ReadLine();
+
+            if (description == null)
+            {
+                Console.WriteLine("Invalid input. Description cannot be null.");
+                return;
+            }
+
+            Console.WriteLine("Please enter new amount:");
+            if (!int.TryParse(Console.ReadLine(), out int amount))
+            {
+                Console.WriteLine("Invalid input. Please enter a valid number for the amount.");
+                return;
+            }
+
+            var updateInfo = new Book(newTitle, description, amount);
+
+            try
+            {
+                _bookStore.Update(oldTitle, updateInfo);
+                Console.WriteLine("Book updated successfully.");
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }
-
