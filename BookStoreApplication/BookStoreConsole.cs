@@ -21,14 +21,20 @@ namespace BookStoreApplication
                 Console.WriteLine("Enter the description of the book:");
                 var description = Console.ReadLine();
 
-                Console.WriteLine("Enter the amount of the book:");
-                var number = Convert.ToInt32(Console.ReadLine());
+                int number;
+                while (true)
+                {
+                    Console.WriteLine("Enter the amount of the book:");
+                    var input = Console.ReadLine();
+
+                    if (int.TryParse(input, out number) && number >= 0)
+                        break;
+
+                    Console.WriteLine("Invalid input. Please enter a valid non-negative number for the amount.");
+                }
 
                 _bookStore.Add(title, description, number);
-            }
-            catch (FormatException)
-            {
-                Console.WriteLine("Invalid input. Please enter a valid number for the amount.");
+                Console.WriteLine("Book added successfully.");
             }
             catch (ArgumentException ex)
             {
@@ -78,7 +84,7 @@ namespace BookStoreApplication
 
         public void ExecuteUpdate()
         {
-            Console.WriteLine("Please enter the title of the book you want to update:");
+            Console.WriteLine("Please enter title of the book you want to update");
             var oldTitle = Console.ReadLine();
 
             if (string.IsNullOrWhiteSpace(oldTitle))
@@ -87,8 +93,18 @@ namespace BookStoreApplication
                 return;
             }
 
-            Console.WriteLine("Please enter new title:");
-            var newTitle = Console.ReadLine();
+            // Find the existing book
+            var existingBook = _bookStore.GetAll().SingleOrDefault(b => b.Title == oldTitle);
+            if (existingBook == null)
+            {
+                Console.WriteLine("Book not found.");
+                return;
+            }
+
+            Console.WriteLine("Please enter new title (or type 'same' to keep current title):");
+            var inputTitle = Console.ReadLine();
+
+            var newTitle = inputTitle.Equals("same", StringComparison.OrdinalIgnoreCase) ? oldTitle : inputTitle;
 
             if (string.IsNullOrWhiteSpace(newTitle))
             {
@@ -96,23 +112,42 @@ namespace BookStoreApplication
                 return;
             }
 
-            Console.WriteLine("Please enter new description:");
-            var description = Console.ReadLine();
-
-            if (description == null)
+            // Check for duplicate title only if title changed
+            if (!newTitle.Equals(oldTitle, StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine("Invalid input. Description cannot be null.");
+                var duplicateExists = _bookStore.GetAll().Any(b => b.Title.Equals(newTitle, StringComparison.OrdinalIgnoreCase));
+                if (duplicateExists)
+                {
+                    Console.WriteLine("A book with this title already exists. Update aborted.");
+                    return;
+                }
+            }
+
+            Console.WriteLine("Please enter new description (or type 'same' to keep current description):");
+            var inputDescription = Console.ReadLine();
+            var newDescription = inputDescription.Equals("same", StringComparison.OrdinalIgnoreCase) ? existingBook.Description : inputDescription;
+
+            if (string.IsNullOrWhiteSpace(newDescription))
+            {
+                Console.WriteLine("Invalid input. Description cannot be empty.");
                 return;
             }
 
-            Console.WriteLine("Please enter new amount:");
-            if (!int.TryParse(Console.ReadLine(), out int amount))
+            Console.WriteLine("Please enter new amount (or type 'same' to keep current amount):");
+            var inputAmount = Console.ReadLine();
+            int newAmount;
+
+            if (inputAmount.Equals("same", StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine("Invalid input. Please enter a valid number for the amount.");
+                newAmount = existingBook.Amount;
+            }
+            else if (!int.TryParse(inputAmount, out newAmount) || newAmount < 0)
+            {
+                Console.WriteLine("Invalid input. Please enter a valid non-negative number for the amount.");
                 return;
             }
 
-            var updateInfo = new Book(newTitle, description, amount);
+            var updateInfo = new Book(newTitle, newDescription, newAmount);
 
             try
             {
